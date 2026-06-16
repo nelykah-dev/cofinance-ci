@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - COFINANCE CI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0e0e1a; color: #e9d5ff; font-family: 'Segoe UI', sans-serif; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #13131f; border-right: 1px solid #2d2d3a; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar h2 { color: #c084fc; font-size: 1.5rem; }
+        .sidebar .sub { color: #a78bfa; font-size: 0.75rem; margin-bottom: 2rem; }
+        .sidebar a { display: block; padding: 0.6rem 1rem; color: #c4b5fd; text-decoration: none; border-radius: 0.5rem; margin-bottom: 0.25rem; }
+        .sidebar a:hover { background: #7c3aed20; color: #c084fc; }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid #2d2d3a; }
+        .avatar { width: 40px; height: 40px; background: #7c3aed; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logout-btn { background: none; border: none; color: #fca5a5; font-size: 1.2rem; cursor: pointer; margin-left: auto; }
+        .main { flex: 1; padding: 2rem; overflow-y: auto; }
+        .dashboard-header { margin-bottom: 2rem; }
+        .dashboard-header h1 { font-size: 1.8rem; color: #e9d5ff; }
+        .card { background: #13131f; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .card h2 { margin-bottom: 1rem; color: #c084fc; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .stat-card { background: #1a1a2e; padding: 1.5rem; border-radius: 0.5rem; text-align: center; }
+        .stat-number { font-size: 2.5rem; color: #c084fc; font-weight: bold; }
+        .stat-label { color: #a78bfa; font-size: 0.9rem; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #2d2d3a; }
+        .data-table th { color: #a78bfa; }
+        .badge { padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; }
+        .badge-soumise { background: #94a3b820; color: #cbd5e1; }
+        .badge-en_analyse { background: #fde04720; color: #fde047; }
+        .badge-approuvee { background: #86efac20; color: #86efac; }
+        .badge-rejetee { background: #fca5a520; color: #fca5a5; }
+        .btn-outline { background: transparent; border: 1px solid #7c3aed; color: #c084fc; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <h2>COFINANCE CI</h2>
+            <div class="sub">Plateforme de microfinance</div>
+            <nav>
+                <a href="/dashboard/">📊 Dashboard</a>
+                <a href="/credits/">📋 Tous les crédits</a>
+                <a href="/remboursements/">💰 Paiements</a>
+                <a href="/assurance/">🛡️ Assurances</a>
+                <a href="/notifications/">🔔 Notifications</a>
+                <a href="/chat/interface/">💬 Support chat</a>
+            </nav>
+        </div>
+        <div class="user-info">
+            <div class="avatar">{{ user.username|first|upper }}</div>
+            <div>{{ user.username }}<br><span style="font-size:0.7rem;">{{ user.role }}</span></div>
+            <form method="post" action="/logout/">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">⏻</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="dashboard-header">
+            <h1>📊 Tableau de bord administrateur</h1>
+            <p>Indicateurs temps réel</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ data.total_demandes|default:"0" }}</div>
+                <div class="stat-label">📋 Demandes</div>
+                <div style="font-size:0.8rem; color:#a78bfa;">en attente : {{ data.en_attente|default:"0" }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.taux_recouvrement|default:"0" }}%</div>
+                <div class="stat-label">💰 Taux recouvrement</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.souscriptions_actives|default:"0" }}</div>
+                <div class="stat-label">🛡️ Souscriptions actives</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.conversations_ouvertes|default:"0" }}</div>
+                <div class="stat-label">💬 Conversations ouvertes</div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="card" style="flex:2;">
+                <h2>📌 Dernières demandes de crédit</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for credit in data.derniers_credits|slice:":5" %}
+                        <tr>
+                            <td>{{ credit.client_username }}</td>
+                            <td>{{ credit.montant_demande }} FCFA</td>
+                            <td><span class="badge badge-{{ credit.statut|lower }}">{{ credit.statut }}</span></td>
+                            <td>{{ credit.date_demande|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4">Aucune demande récente</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card" style="flex:1;">
+                <h2>💬 Derniers messages support</h2>
+                <ul>
+                    {% for msg in data.derniers_messages|slice:":5" %}
+                    <li><strong>{{ msg.client_name }}</strong> : {{ msg.contenu|truncatechars:60 }}</li>
+                    {% empty %}
+                    <li>Aucun message récent</li>
+                    {% endfor %}
+                </ul>
+                <a href="/chat/interface/" class="btn-outline">📨 Accéder au chat</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

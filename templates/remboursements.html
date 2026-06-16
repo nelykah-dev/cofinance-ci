@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Remboursements — COFINANCE CI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📅 Suivi des Remboursements</h1>
+    <p>Historique des paiements et échéances</p>
+</div>
+
+{% if message %}
+<div class="alert alert-{{ message.type }}">{{ message.text }}</div>
+{% endif %}
+
+{% if user.role == 'agent' or user.role == 'admin' %}
+<div class="card">
+    <div class="card-title">💳 Enregistrer un paiement</div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label>ID de l'échéance</label>
+                <input type="number" name="echeance" placeholder="Ex: 1" required/>
+            </div>
+            <div class="form-group">
+                <label>Montant payé (FCFA)</label>
+                <input type="number" name="montant_paye" placeholder="Ex: 25000" required/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Note (optionnel)</label>
+            <input type="text" name="note" placeholder="Remarque sur le paiement"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer le paiement</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-title">📋 Historique des paiements</div>
+    {% if paiements %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Échéance</th>
+                <th>Montant payé</th>
+                <th>Pénalité</th>
+                <th>Agent</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in paiements %}
+            <tr>
+                <td>#{{ p.id }}</td>
+                <td>Échéance #{{ p.echeance }}</td>
+                <td>{{ p.montant_paye }} FCFA</td>
+                <td>{{ p.penalite }} FCFA</td>
+                <td>{{ p.agent }}</td>
+                <td>{{ p.date_paiement|slice:":10" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#6b7280; text-align:center; padding:20px;">Aucun paiement enregistré.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Assurance — COFINANCE CI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>🛡️ Produits d'Assurance Mobile</h1>
+    <p>Catalogue et gestion de vos souscriptions</p>
+</div>
+
+{% if message %}
+<div class="alert alert-{{ message.type }}">{{ message.text }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-title">📦 Catalogue des produits</div>
+    {% if produits %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Prix mensuel</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+            <tr>
+                <td>#{{ produit.id }}</td>
+                <td>{{ produit.nom }}</td>
+                <td>{{ produit.type_assurance }}</td>
+                <td>{{ produit.prix_mensuel }} FCFA</td>
+                <td>
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="produit" value="{{ produit.id }}"/>
+                        <input type="hidden" name="date_expiration" value=""/>
+                        <button type="submit" class="btn btn-primary" style="padding:6px 12px; font-size:12px;">
+                            Souscrire
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#6b7280; text-align:center; padding:20px;">Aucun produit disponible.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-title">✅ Mes souscriptions actives</div>
+    {% if souscriptions %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Produit</th>
+                <th>Date souscription</th>
+                <th>Expiration</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in souscriptions %}
+            <tr>
+                <td>#{{ s.id }}</td>
+                <td>{{ s.produit }}</td>
+                <td>{{ s.date_souscription }}</td>
+                <td>{{ s.date_expiration }}</td>
+                <td>
+                    {% if s.est_active %}
+                    <span class="badge badge-active">Active</span>
+                    {% else %}
+                    <span class="badge badge-expiree">Expirée</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#6b7280; text-align:center; padding:20px;">Aucune souscription active.</p>
+    {% endif %}
+</div>
+{% endblock %}

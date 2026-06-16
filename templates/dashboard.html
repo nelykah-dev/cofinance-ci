@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - COFINANCE CI{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>📊 Tableau de bord administrateur</h1>
+    <p>Indicateurs temps réel</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>📋 Demandes de crédit</h3>
+        <p class="stat-number">{{ data.total_demandes|default:"0" }}</p>
+        <span class="stat-label">en attente : {{ data.en_attente|default:"0" }}</span>
+    </div>
+    <div class="stat-card">
+        <h3>💰 Taux de recouvrement</h3>
+        <p class="stat-number">{{ data.taux_recouvrement|default:"0" }}%</p>
+        <span class="stat-label">période en cours</span>
+    </div>
+    <div class="stat-card">
+        <h3>🛡️ Souscriptions actives</h3>
+        <p class="stat-number">{{ data.souscriptions_actives|default:"0" }}</p>
+        <span class="stat-label">assurances mobiles</span>
+    </div>
+    <div class="stat-card">
+        <h3>💬 Conversations ouvertes</h3>
+        <p class="stat-number">{{ data.conversations_ouvertes|default:"0" }}</p>
+        <span class="stat-label">support client</span>
+    </div>
+</div>
+
+<div class="admin-sections">
+    <div class="card">
+        <h2>📌 Dernières demandes de crédit</h2>
+        <table class="data-table">
+            <thead>
+                <tr><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                {% for credit in data.derniers_credits|slice:":5" %}
+                <tr>
+                    <td>{{ credit.client_username }}</td>
+                    <td>{{ credit.montant_demande }} FCFA</td>
+                    <td><span class="badge statut-{{ credit.statut|lower }}">{{ credit.statut }}</span></td>
+                    <td>{{ credit.date_demande|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Aucune demande récente</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>💬 Derniers messages support</h2>
+        <ul class="message-list">
+            {% for msg in data.derniers_messages|slice:":5" %}
+            <li><strong>{{ msg.client_name }}</strong> : {{ msg.contenu|truncatechars:60 }}</li>
+            {% empty %}
+            <li>Aucun message récent</li>
+            {% endfor %}
+        </ul>
+        <a href="/chat/interface/" class="btn btn-outline">📨 Accéder au chat</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Microcrédits — COFINANCE CI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>💰 Gestion des Microcrédits</h1>
+    <p>Soumettez et suivez vos demandes de crédit</p>
+</div>
+
+{% if message %}
+<div class="alert alert-{{ message.type }}">{{ message.text }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-title">➕ Nouvelle demande de crédit</div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label>Montant demandé (FCFA)</label>
+                <input type="number" name="montant_demande" placeholder="Ex: 150000" required/>
+            </div>
+            <div class="form-group">
+                <label>Durée (mois)</label>
+                <input type="number" name="duree_mois" placeholder="Ex: 12" required/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Motif de la demande</label>
+            <textarea name="motif" rows="3" placeholder="Décrivez l'objet de votre demande..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Soumettre la demande</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-title">📋 Mes demandes de crédit</div>
+    {% if credits %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Montant</th>
+                <th>Durée</th>
+                <th>Score</th>
+                <th>Statut</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for credit in credits %}
+            <tr>
+                <td>#{{ credit.id }}</td>
+                <td>{{ credit.montant_demande }} FCFA</td>
+                <td>{{ credit.duree_mois }} mois</td>
+                <td>{{ credit.score_eligibilite }}/100</td>
+                <td><span class="badge badge-{{ credit.statut }}">{{ credit.statut }}</span></td>
+                <td>{{ credit.date_soumission|slice:":10" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#6b7280; text-align:center; padding:20px;">Aucune demande de crédit pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}
