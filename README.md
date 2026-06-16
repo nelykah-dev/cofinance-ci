@@ -14,7 +14,7 @@ Plateforme digitale de gestion de microcrédits, d'assurance mobile et de suppor
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/TON_USERNAME/cofinance-ci.git
+git clone https://github.com/nelykah-dev/cofinance-ci.git
 cd cofinance-ci
 ```
 
@@ -76,3 +76,6 @@ daphne -p 8000 cofinance.asgi:application
 ## Collaboration GitHub
 - @Sedrickgael
 - @Junmodeste
+
+## Dépôt GitHub
+https://github.com/nelykah-dev/cofinance-ci
